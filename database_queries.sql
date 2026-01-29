@@ -129,3 +129,84 @@ CREATE TABLE borrowed_books (
     FOREIGN KEY (book_id) REFERENCES books(book_id)
 );
 
+CREATE DATABASE online_store;
+USE online_store;
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100),
+    email VARCHAR(100),
+    city VARCHAR(50)
+);
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_name VARCHAR(100),
+    price DECIMAL(10,2),
+    category VARCHAR(50)
+);
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+INSERT INTO customers (name, email, city) VALUES
+('Ravi', 'ravi@gmail.com', 'Hyderabad'),
+('Anita', 'anita@gmail.com', 'Bangalore'),
+('Kiran', 'kiran@gmail.com', 'Chennai');
+INSERT INTO products (product_name, price, category) VALUES
+('Laptop', 60000, 'Electronics'),
+('Mobile', 30000, 'Electronics'),
+('Headphones', 2000, 'Accessories'),
+('Keyboard', 1500, 'Accessories');
+INSERT INTO orders (customer_id, order_date) VALUES
+(1, '2024-01-10'),
+(2, '2024-01-12'),
+(1, '2024-01-15');
+INSERT INTO order_items (order_id, product_id, quantity) VALUES
+(1, 1, 1),
+(1, 3, 2),
+(2, 2, 1),
+(3, 4, 1);
+SELECT * FROM products
+WHERE price > 5000;
+SELECT * FROM products
+WHERE category = 'Electronics' AND price < 50000;
+SELECT * FROM products
+ORDER BY price DESC;
+SELECT COUNT(*) AS total_customers
+FROM customers;
+SELECT AVG(price) AS average_price
+FROM products;
+SELECT category, COUNT(*) AS total_products
+FROM products
+GROUP BY category;
+SELECT c.name, o.order_id, o.order_date
+FROM customers c
+INNER JOIN orders o
+ON c.customer_id = o.customer_id;
+SELECT o.order_id, p.product_name, oi.quantity
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id;
+SELECT o.order_id,
+       SUM(p.price * oi.quantity) AS total_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+GROUP BY o.order_id;
+SELECT o.order_id,
+       SUM(p.price * oi.quantity) AS total_amount
+FROM orders o
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+INNER JOIN products p ON oi.product_id = p.product_id
+GROUP BY o.order_id
+HAVING total_amount > 10000;
+
